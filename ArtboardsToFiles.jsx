@@ -10,6 +10,7 @@
 initialConstants();
 userInput();
 if(doSomething === true){
+	app.activeDocument.rulerOrigin = [0,0]
 	artboardToFiles()
 }else{
 	//do nothing
@@ -61,13 +62,16 @@ function artboardToFiles(){
 		//-------------------------------------------------------- 
 		currentDocument = app.activeDocument;
 		currentNewDoc = newDocument(currentSelectionLayerArray,currentArtboardName,currentArtboardRect);
+		currentNewDoc.artboards[0].artboardRect = [0,100,100,0];
 		//-------------------------------------------------------- 
 		currentDocument.activate();
 		duplicateSelected(app.activeDocument.selection,currentNewDoc);
 		//--------------------------------------------------------
-		newDoc.activate();
-		newDocArtboardRectLayer = app.activeDocument.layers.getByName('TempArtboardRectLayer');
-		newDocArtboardRectItem = tempArtboardRectLayer.pageItems.getByName('TempArtboardRect');
+		currentNewDoc.activate();
+		app.activeDocument.selection = null;
+		newDocArtboardRectLayer = currentNewDoc.layers.getByName('TempArtboardRectLayer');
+		newDocArtboardRectItem = newDocArtboardRectLayer.pageItems.getByName('TempArtboardRect');
+		newDocArtboardRectItem.selected = true
 		app.activeDocument.artboards[0].artboardRect = newDocArtboardRectItem.geometricBounds;
 		newDocArtboardRectLayer.remove();
 		//--------------------------------------------------------
@@ -253,6 +257,8 @@ function saveAI(filename){
 	flatOptions.clipComplexRegions = true;
 	saveOptions.flattenerOptions = flatOptions;
 	//----------------------------------------------------
+	filename = stringReplacement(filename,'%20',' ')
+	filename = stringReplacement(filename,'/c/','C:/')
 	fileSpec = new File(filename);
 	app.activeDocument.saveAs(fileSpec);
 	//----------------------------------------------------
@@ -276,6 +282,8 @@ function savePDF(filename){
 	flatOptions.clipComplexRegions = true;
 	saveOptions.flattenerOptions = flatOptions;
 	//----------------------------------------------------
+	filename = stringReplacement(filename,'%20',' ')
+	filename = stringReplacement(filename,'/c/','C:/')
 	fileSpec = new File(filename);
 	app.activeDocument.saveAs(fileSpec,saveOptions);
 	//----------------------------------------------------
@@ -338,8 +346,8 @@ function userInput(){
 		filetypePanel.orientation = 'column'
 		filetypePanel.alignChildren = 'left'
 		var aiRadio = filetypePanel.add ("radiobutton", undefined, 'AI');
-		aiRadio.value = true;
 		var pdfRadio = filetypePanel.add ("radiobutton", undefined, 'PDF');
+		pdfRadio.value = true;
 		var dwgRadio = filetypePanel.add ("radiobutton", undefined, 'DWG');
 		//----------------------------------------------------
 		var filenamePanel = fileGroup.add('panel',undefined , 'Filename', {borderStyle:'white'});
@@ -364,15 +372,14 @@ function userInput(){
 			filenameGroup2.alignChildren = 'center'
 			//----------------------------------------------------
 			var filenameSizeCheck = filenameGroup2.add ("checkbox", undefined, '+ Item size');
+			filenameSizeCheck.value = true
 			var filenameText2 = filenameGroup2.add ("statictext", undefined, 'Scale 1: ');
 			var filenameScale = filenameGroup2.add ("edittext", ([undefined,undefined,30,21]), '10');
-			filenameText2.enabled = false;
-			filenameScale.enabled = false;
 	//----------------------------------------------------
 	var folderPanel = mainGroup.add('panel',undefined , 'Folder', {borderStyle:'white'});
 	var folderGroup = folderPanel.add ('group');
 	folderGroup.orientation = 'row'
-	var urlText = folderGroup.add ("statictext", ([undefined,undefined,256,21]), activeURL);
+	var urlText = folderGroup.add ("edittext", ([undefined,undefined,256,21]), activeURL);
 	var folderButton = folderGroup.add ("button", undefined, "Change");
 	folderButton.onClick = function (){
 		activeURL = Folder.selectDialog( 'Select folder.', folderPath);
@@ -507,4 +514,63 @@ function rulerOriginAdjustment(artboard){
 	artboard.rulerOrigin = [artboard.artboardRect[0],
 								-artboard.artboardRect[1]+neg2pos(artboard.artboardRect[1]-artboard.artboardRect[3])
 								]
+}
+//----------------------------------------------------
+function stringReplacement(a,b,c){//a-string, b- target, c-replacement
+	//---------------------------------
+	originalString = a
+	replacedString = '';
+	//---------------------------------
+	var a = a.toString();
+	var b = b.toString();
+	var c = c.toString();
+	//---------------------------------
+	var a = a.split('');
+	var b = b.split('');
+	//---------------------------------
+	loopLength = a.length;
+	if(b.length>loopLength){
+		loopLength = b.length;
+	}
+	if(c.length>loopLength){
+		loopLength = c.length;
+	}
+	//---------------------------------
+	matchedString = false;
+	//---------------------------------
+	for(i=0;i<loopLength;i++){
+		//---------------------------------
+		if(a[i] === b[0]){
+			for(ii=0;ii<b.length;ii++){
+				if(a[i+ii] !== b[ii]){
+					break;
+				}
+				//---------------------------------
+				if(ii>=b.length-1){
+					i = i + b.length;
+					if(c === undefined){
+						continue
+					}else{
+						replacedString += c;
+					}
+				}
+				//---------------------------------
+			}
+		}
+		//---------------------------------
+		if(matchedString === false && i < loopLength){
+			if(c === undefined){
+				continue
+			}else{
+				replacedString += a[i];
+			}
+		}
+		//---------------------------------
+	}
+	//---------------------------------
+	if(originalString === ''){
+		replacedString = originalString
+	}
+	//---------------------------------
+	return replacedString;
 }
