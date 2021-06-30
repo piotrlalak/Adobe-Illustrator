@@ -16,7 +16,7 @@ function userInput(){
 	prefixGroup.orientation = 'column'
 	prefixGroup.alignChildren = 'center'
 		prefixStaticText = prefixGroup.add ("statictext", undefined,'Prefix');
-		prefixEditText= prefixGroup.add ("edittext", [undefined,undefined,200,23], 'ASTXXXYYY');
+		prefixEditText= prefixGroup.add ("edittext", [undefined,undefined,250,23], 'ASTXXXYYY');
 	//----------------------------------------------------
 	divider1 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//----------------------------------------------------
@@ -26,6 +26,7 @@ function userInput(){
 		numberingRadio = typeGroup.add ("radiobutton", undefined,'Numbering');
 		numberingRadio.value = true
 		letteringRadio = typeGroup.add ("radiobutton", undefined,'Lettering');
+		noneRadio = typeGroup.add ("radiobutton", undefined,'None (Sizing)');
 	//----------------------------------------------------
 	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//----------------------------------------------------
@@ -44,16 +45,33 @@ function userInput(){
 	//----------------------------------------------------
 	divider4 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//----------------------------------------------------
+	sizesCheckBox = mainGroup.add ("checkbox", undefined,'Sizes');
+	sizesCheckBox.value = false
+	sizesGroup = mainGroup.add('group');
+	sizesGroup.orientation = 'row'
+	sizesGroup.alignChildren = 'left'
+		scaleStaticText = sizesGroup.add ("statictext", undefined,'Scale 1: ');
+		inputScale= sizesGroup.add ("edittext", [undefined,undefined,50,23], '1');
+	//----------------------------------------------------
+	divider4 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
+	//----------------------------------------------------
 	var okButton = mainGroup.add ("button", undefined, "OK");
 	okButton.onClick = function (){
 		doSomething = true;
 		window.close();
 	}
 	numberingRadio.onClick = function (){
+		prefixGroup.enabled = true
 		startNumberGroup.enabled = true
 		paddingCheckBox.enabled = true
 	}
 	letteringRadio.onClick = function (){
+		prefixGroup.enabled = true
+		startNumberGroup.enabled = false
+		paddingCheckBox.enabled = false
+	}
+	noneRadio.onClick = function (){
+		prefixGroup.enabled = false
 		startNumberGroup.enabled = false
 		paddingCheckBox.enabled = false
 	}
@@ -62,15 +80,19 @@ function userInput(){
 	//----------------------------------------------------
 	if(numberingRadio.value === true){
 		suffixType = 0
-	}else{
+	}else if(letteringRadio.value === true) {
 		suffixType = 1
+	}else{
+		suffixType = 2
 	}
 	startNumberInput = parseInt(startNumberEditText.text)
 	prefixString = prefixEditText.text
 	padding = paddingCheckBox.value
 	asterisks = asteriskCheckBox.value
+	sizes = sizesCheckBox.value
+	scale= 1/(parseInt(inputScale.text))
 	//----------------------------------------------------
-	return suffixType,startNumberInput,prefixString,padding,asterisks,doSomething;
+	return suffixType,startNumberInput,prefixString,padding,asterisks,sizes,scale,doSomething;
 }
 //----------------------------------------------------
 function pad(n, width, z) {
@@ -94,13 +116,27 @@ function nameItems(){
 					//----------------------------------------------------
 					if(suffixType === 0){
 						tempName = prefixString+number.toString()
-					}else{
+					}else if(suffixType === 1){
 						tempName = prefixString+numberToLetter(a)
+					}else{
+						tempName = ''
 					}
 					//----------------------------------------------------
 					if(asterisks===true){
 						tempName = '*'+ tempName + '*'
-					}				
+					}
+					//----------------------------------------------------
+					if(sizes===true){
+						units = (72/25.4)*scale;
+						width = (app.activeDocument.selection[a].width / units).toFixed(0)
+						height = (app.activeDocument.selection[a].height / units).toFixed(0)
+						itemsize = width + ' x ' + height
+						spacing = ''
+						if(tempName.length > 0){
+							spacing = ' '
+						}
+						tempName = tempName + spacing + itemsize
+					}	
 					app.activeDocument.selection[a].name = tempName
 				}
 			}
