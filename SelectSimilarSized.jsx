@@ -16,8 +16,8 @@ if(app.activeDocument.selection.length > 0 && app.activeDocument.selection.lengt
 //-----------------------------------------------------------------------------------------------------------------------------------
 function selectSimilarSized(item){
 	targetBounds = boundsToSizes(visibleObjectBounds(item));
-	tWidth = boundsToSizes(visibleObjectBounds(item))[0];
-	tHeight = boundsToSizes(visibleObjectBounds(item))[1];
+	tWidth = item.width//boundsToSizes(visibleObjectBounds(item))[0];
+	tHeight = item.height//boundsToSizes(visibleObjectBounds(item))[1];
 	//--------------------------------------------------------
 	$.writeln('Looking through layers... Tolerance: ' + (inputTolerance * 100) + '%');
 	totalItemCount = 0
@@ -39,12 +39,12 @@ function sublayerItems(object){
 		//$.writeln('>>> ' + object.name + ' <<<');
 		for(p=0;p<object.pageItems.length;p++){
 			currentBounds = boundsToSizes(visibleObjectBounds(object.pageItems[p]));
-			cWidth = boundsToSizes(visibleObjectBounds(object.pageItems[p]))[0];
-			cHeight = boundsToSizes(visibleObjectBounds(object.pageItems[p]))[1];
+			//cWidth = object.pageItems[p].width
+			//cHeight = object.pageItems[p].height
 			sizeMatch = false;
-			//$.writeln(object.pageItems[p].name + ' | ' + object.pageItems[p].typename + ': ' + cWidth.toFixed(3) + ' x ' + cHeight.toFixed(3));
 			//--------------------------------------------------------
 			isSimilarSize(currentBounds);
+			//isSimilarSize2(cWidth,cHeight);
 			if(sizeMatch === true){
 				object.pageItems[p].selected = true;
 			}
@@ -117,6 +117,40 @@ function neg2pos(value){
 		newValue = value;
 	}
 	return newValue;
+}
+//-----------------------------------------------------------------------------------------------------------------------------------
+function isSimilarSize2(cWidth,cHeight){
+	wTolerance = cWidth * inputTolerance;
+	hTolerance = cHeight * inputTolerance;
+	aTolerance = (wTolerance * hTolerance) * inputTolerance;
+	//----------------------------------------------------
+	switch(mode){
+		case 0:
+			if(wTolerance <= tWidth + wTolerance && itemBounds[0] >= targetBounds[0] - wTolerance){
+			}
+				
+		case 1:
+			itemArea = (itemBounds[0] * itemBounds[1]);
+			targetArea = (targetBounds[0]  * targetBounds[1])
+			if(itemArea <= targetArea + aTolerance && itemArea >= targetArea - aTolerance){
+				sizeMatch = true;
+				similarItemCount++;
+			}else{
+				sizeMatch = false;
+			}
+			break;
+		default:
+			itemArea = (itemBounds[0] * itemBounds[1]);
+			targetArea = (targetBounds[0]  * targetBounds[1])
+			if(itemArea <= targetArea + aTolerance && itemArea >= targetArea - aTolerance){
+				sizeMatch = true;
+				similarItemCount++;
+			}else{
+				sizeMatch = false;
+			}
+			break;
+		}
+	//----------------------------------------------------
 }
 //-----------------------------------------------------------------------------------------------------------------------------------
 function isSimilarSize(itemBounds){

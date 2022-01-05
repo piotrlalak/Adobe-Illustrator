@@ -142,7 +142,7 @@ function userInput(){
 	var folderPanel = mainGroup.add('panel',undefined , 'Folder', {borderStyle:'white'});
 	var folderGroup = folderPanel.add ('group');
 	folderGroup.orientation = 'row'
-	var urlText = folderGroup.add ("statictext", ([undefined,undefined,300,21]), stringReplacement(activeURL,'%20', ' '));
+	var urlText = folderGroup.add ("edittext", ([undefined,undefined,300,21]), stringReplacement(activeURL,'%20', ' '));
 	var folderButton = folderGroup.add ("button", undefined, "Change");
 	folderButton.onClick = function (){
 		activeURL = Folder.selectDialog( 'Select folder.', folderPath);

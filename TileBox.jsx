@@ -108,10 +108,10 @@ function userInput(){
 	orientationPanel.orientation = 'column'
 	orientationPanel.alignChildren = 'left'
 	var verticalOrientation = orientationPanel.add ("Radiobutton", undefined, 'Vertical');
-	verticalOrientation.value = true;
 	var horizontalOrientation = orientationPanel.add ("Radiobutton", undefined, 'Horizontal');
 	var autoOrientation = orientationPanel.add ("Radiobutton", undefined, 'Auto');
 	var efficientOrientation = orientationPanel.add ("Radiobutton", undefined, 'Efficient');
+	autoOrientation.value = true;
 	//------------------------------------
 	var maxWidthPanel = mainGroup.add('panel',undefined , 'Max Width', {borderStyle:'white'});
 	maxWidthPanel.orientation = 'row'
@@ -133,8 +133,8 @@ function userInput(){
 	miscPanel.alignChildren = 'left'
 	var removeSelected = miscPanel.add ("checkbox", undefined, 'Remove current box');
 	var addTabCheck = miscPanel.add ("checkbox", undefined, 'Add barcode tab');
-	removeSelected.value = false;
-	addTabCheck.value = false;
+	removeSelected.value = true;
+	addTabCheck.value = true;
 	//------------------------------------
 	var okButton = mainGroup.add ("button", undefined, "OK");
 	okButton.onClick = function (){

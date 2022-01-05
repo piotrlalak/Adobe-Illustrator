@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------------------------
 var doc = app.activeDocument;
 var activeLayer = doc.activeLayer;
 //---------------------------------------------------------------------------------------------
@@ -31,6 +31,8 @@ var sPathGroup = activeLayer.groupItems.add();
 sPathGroup.name = "Simple Paths";
 var complexPathGroup = activeLayer.groupItems.add();
 complexPathGroup.name = "Complex Paths";
+var vComplexPathGroup = activeLayer.groupItems.add();
+vComplexPathGroup.name = "Very Complex Paths";
 var compoundPathsGroup = activeLayer.groupItems.add();
 compoundPathsGroup.name = "Compound Paths";
 var othersGroup = activeLayer.groupItems.add();
@@ -48,11 +50,14 @@ for (i=0;i<itemsArray.length;i++){
                 itemsArray[i].move(lineGroup, ElementPlacement.PLACEATEND);
             }
             w.pbar.value += 1;
-        }else if(itemsArray[i].pathPoints.length > 2 && itemsArray[i].pathPoints.length <= 3){
+        }else if(itemsArray[i].pathPoints.length > 2 && itemsArray[i].pathPoints.length <= 10){
             itemsArray[i].move(sPathGroup, ElementPlacement.PLACEATEND);
             w.pbar.value += 1;
-        }else if(itemsArray[i].pathPoints.length > 3){
+        }else if(itemsArray[i].pathPoints.length > 10 && itemsArray[i].pathPoints.length <= 50){
             itemsArray[i].move(complexPathGroup, ElementPlacement.PLACEATEND);
+            w.pbar.value += 1;
+        }else if(itemsArray[i].pathPoints.length > 50){
+            itemsArray[i].move(vComplexPathGroup, ElementPlacement.PLACEATEND);
             w.pbar.value += 1;
         }else{
             w.pbar.value += 1;
