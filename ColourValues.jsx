@@ -56,14 +56,18 @@ function checkName(item){
 		if(app.activeDocument.documentColorSpace === DocumentColorSpace.CMYK){
 			decimalPoint = 2
 			itemColour = item.fillColor
-			itemColour = [(itemColour.cyan).toFixed(decimalPoint),
-							(itemColour.magenta).toFixed(decimalPoint),
-							(itemColour.yellow).toFixed(decimalPoint),
-							(itemColour.black).toFixed(decimalPoint)]
-			tempName = 'C:' + itemColour[0] + '% '
-			tempName += 'M:' + itemColour[1] + '% '
-			tempName += 'Y:' + itemColour[2] + '% '
-			tempName += 'K:' + itemColour[3] + '%'
+			if(itemColour.typename == 'CMYKColor'){
+				itemColour = [(itemColour.cyan).toFixed(decimalPoint),
+								(itemColour.magenta).toFixed(decimalPoint),
+								(itemColour.yellow).toFixed(decimalPoint),
+								(itemColour.black).toFixed(decimalPoint)]
+				tempName = 'C:' + itemColour[0] + '% '
+				tempName += 'M:' + itemColour[1] + '% '
+				tempName += 'Y:' + itemColour[2] + '% '
+				tempName += 'K:' + itemColour[3] + '%'
+			}else if(itemColour.typename == 'SpotColor'){
+				tempName = itemColour.spot.name
+			}
 		}else{
 			decimalPoint = 0
 			itemColour = item.fillColor
