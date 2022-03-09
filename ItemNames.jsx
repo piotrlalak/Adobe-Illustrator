@@ -51,9 +51,15 @@ function checkName(item){
 		//-------------------------------------------------------
 		tempString = item.file.displayName;
 		if(removeSuffix === true){
-			tempString = tempString.split(' ');
-			tempString.pop()
-			tempString = tempString.join(' ')
+			temp_new_string = tempString.split(' ');
+			temp_new_string.pop()
+			temp_new_string = temp_new_string.join(' ')
+			if(temp_new_string.length == tempString.length || temp_new_string.length == 0){
+				temp_new_string = tempString.split('_');
+				temp_new_string.pop()
+				temp_new_string = temp_new_string.join('_')
+			}
+			tempString = temp_new_string
 		}
 		//-------------------------------------------------------
 		tempName = tempString
@@ -210,7 +216,7 @@ function userInput(){
 			prefixInputGroup.orientation = 'row'
 			prefixInputGroup.alignChildren = 'center'
 			prefixStatic = prefixInputGroup.add ("statictext", undefined, 'Prefix: ');
-			prefixInputEdit = prefixInputGroup.add ("edittext", ([undefined,undefined,100,21]), 'AST');
+			prefixInputEdit = prefixInputGroup.add ("edittext", ([undefined,undefined,100,21]), 'BaseCut-');
 			prefixInputGroup.enabled = false
 		suffixCheck = mainGroup.add ("checkbox", undefined, 'Remove size suffix');
 		var nameSizeGroup = mainGroup.add ('group');
