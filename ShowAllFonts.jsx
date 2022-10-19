@@ -7,8 +7,8 @@ function showAllFonts(){
 		font_length = app.textFonts.length		
 		widthOffset = 200 * 1.350913217
 		heightOffset = 10 * 1.350913217		
-		n_cols = 10
-		n_rows = Math.ceil(font_length / n_cols)
+		n_rows = 10
+		n_cols = Math.ceil(font_length / n_rows)
 		f_counter = 0
 		
 		for(a=0;a<n_rows;a++){
@@ -22,7 +22,7 @@ function showAllFonts(){
 				}
 				
 				if(f_counter < font_length){
-					pointTextInfo(display_text,app.textFonts[f_counter],b + b*widthOffset,a - a*heightOffset,10,app.activeDocument.activeLayer)
+					pointTextInfo(display_text,app.textFonts[f_counter],a + a*widthOffset,b - b*heightOffset,10,app.activeDocument.activeLayer)
 					f_counter++
 				}else{
 					break
