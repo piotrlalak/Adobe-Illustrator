@@ -7,9 +7,15 @@ function artboardToRect(){
 	if(doSomething === true){
 		createLayer()
 		for(c=0;c<app.activeDocument.artboards.length;c++){
-			c_rect = app.activeDocument.artboards[c].artboardRect
-			$.writeln(c_rect)
-			artboardRect(app.activeDocument.layers.getByName("Artboards"),c_rect)
+			c_art = app.activeDocument.artboards[c]
+			c_rect = c_art.artboardRect
+			if(c_art.name.length > 0){
+				c_name = c_art.name
+			}else{
+				c_name = 'Artboard ' + (c+1)
+			}
+			$.writeln(c_name,c_rect)
+			artboardRect(app.activeDocument.layers.getByName("Artboards"),c_rect,c_name)
 		}
 	}
 }
@@ -28,12 +34,13 @@ function createLayer(){
 	}
 }
 //----------------------------------------------------
-function artboardRect(loc,artRect){
+function artboardRect(loc,artRect,artName){
 	board =  loc.pathItems.rectangle(artRect[1],artRect[0],neg2pos((artRect[0] - artRect[2])),neg2pos((artRect[1] - artRect[3])),false);	
 	board.closed = true;
 	board.stroked = false;
 	board.filled - true;
 	board.fillColor = blackColour()
+	board.name = artName
 	return board;
 }
 //----------------------------------------------------
