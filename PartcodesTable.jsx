@@ -1,10 +1,17 @@
-﻿//a=app.activeDocument.selection[0]
-
+﻿//----------------------------------------------------
 units = 72/25.4
-partcodesTable()
-//crosshair(xOrigin+tableX_init,-yOrigin+tableY_init,10,active_lay)
+//partcodesTable()
 
+userInput()
+if(doSomething === true){
+	if(selection.length===1){
+		partcodesTable()
+	}
+}else{
+	//donothing
+}
 
+//----------------------------------------------------
 function partcodesTable(){
 	
 	//----------------------------- INIT VARS
@@ -15,13 +22,15 @@ function partcodesTable(){
 	active_lay = app.activeDocument.activeLayer
 	active_art = app.activeDocument.artboards[app.activeDocument.artboards.getActiveArtboardIndex()]
 	xOrigin = active_art.artboardRect[0] + tableX_init
-	yOrigin = active_art.artboardRect[1] + tableY_init
+	yOrigin = active_art.artboardRect[1] - tableY_init
 	
 	//----------------------------- PREFLIGHT CHECKS
 	textframe_length = Boolean(selection.length === 1)
 	headerMatch = checkHeader(selection[0].contents);
 	if(textframe_length == true && headerMatch == true){
 		partcodesArray = partcodeCSVArray(selection[0].contents);
+		newTableGroup = active_lay.groupItems.add();
+		newTableGroup.name = 'PartcodesTable'
 	}else{
 		partcodesArray = null
 	}
@@ -31,12 +40,12 @@ function partcodesTable(){
 		for(i=0;i<partcodesArray.length;i++){
 			itemRow(xOrigin,
 					yOrigin,
-					active_lay,
+					newTableGroup,
 					partcodesArray[i].production,
 					partcodesArray[i].part,
 					partcodesArray[i].partcode,
 					partcodesArray[i].quantity)	
-			yOrigin = yOrigin + itemRow_height
+			yOrigin = yOrigin - itemRow_height
 		}
 	}
 }
@@ -173,6 +182,7 @@ function checkHeader(csv){
 	//------------------------------------------
 	csvArray = csv.split("\r");
 	activeHeaderColumns = csvArray[0];
+	baseHeaderColumns = 'PARTCODE,DESCRIPTION,LOCATION,QUANTITY,PRODUCTION';
 	//------------------------------------------
 	if(activeHeaderColumns===baseHeaderColumns){
 		headerMatch = true;
@@ -276,4 +286,38 @@ function crosshair(x,y,s,l){ //development only
 	crosshairGroup.pageItems[0].rotate(90,true,true,true,true,Transformation.CENTER);
 	//--------------------------------------------------------
 	return crosshairGroup;
+}
+//--------------------------------------------------------
+function userInput(){
+	//----------------------------------------------------
+	var w = new Window ('dialog',"PartcodesTable");
+	var mainGroup = w.add ('group');
+	mainGroup.orientation = 'column'
+	infoGroup = mainGroup.add('group');
+		infoGroup.orientation = 'column'
+		infoGroup.alignChildren = 'center'
+		info1 = infoGroup.add ("statictext", undefined,'Script will create partcodes table');
+		info2 = infoGroup.add ("statictext", undefined,'from selected csv.');
+	divider1 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
+	/*
+	var nameSizeGroup = mainGroup.add ('group');
+		nameSizeGroup.orientation = 'row'
+		nameSizeGroup.alignChildren = 'center'
+		nameSizeStatic = nameSizeGroup.add ("statictext", undefined, 'Text Size: ');
+		nameSizeInput = nameSizeGroup.add ("edittext", ([undefined,undefined,50,21]), 10);
+		nameSizeUnitsStatic = nameSizeGroup.add ("statictext", undefined, 'mm');
+	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});*/
+	//---------------------------------------------------- 
+	doSomething = false;
+	//----------------------------------------------------
+	var okButton = mainGroup.add ("button", undefined, "Ok");
+	okButton.onClick = function (){
+		doSomething = true;
+		w.close();
+	}
+	//----------------------------------------------------
+	w.show();
+	//nameSize = parseFloat(nameSizeInput.text)
+	//----------------------------------------------------
+	return doSomething;//,nameSize;
 }
