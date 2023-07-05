@@ -1,7 +1,5 @@
 ﻿//----------------------------------------------------
 units = 72/25.4
-//partcodesTable()
-
 userInput()
 if(doSomething === true){
 	if(selection.length===1){
@@ -10,7 +8,6 @@ if(doSomething === true){
 }else{
 	//donothing
 }
-
 //----------------------------------------------------
 function partcodesTable(){
 	
@@ -18,7 +15,7 @@ function partcodesTable(){
 	
 	tableX_init = 34.26575
 	tableY_init = 124.97534
-	itemRow_height = 4.895 * units
+	//itemRow_height = 4.895 * units
 	active_lay = app.activeDocument.activeLayer
 	active_art = app.activeDocument.artboards[app.activeDocument.artboards.getActiveArtboardIndex()]
 	xOrigin = active_art.artboardRect[0] + tableX_init
@@ -50,6 +47,7 @@ function partcodesTable(){
 	}
 }
 //----------------------------------------------------
+
 function itemRow(x,y,l,t,d_text,p_text,no_text){
 	newItemGroup = l.groupItems.add();
 	newItemGroup.name = p_text
@@ -60,9 +58,19 @@ function itemRow(x,y,l,t,d_text,p_text,no_text){
 	part_box_width = 21.6 * units
 	nore_box_width = 14.912 * units
 	chec_box_width = 10.65 * units
-	stroke_width = 0.176 * units	
-	text_offset = 0.383 * units
+	stroke_width = 0.176 * units
 	
+	if(itemRow_height <= (2*units)){
+		s = ((itemRow_height / units) * 0.8 ) * units
+	}else{
+		s = 1.426 * units
+	}
+	
+	vShift = (-10.043952) + (s/2) - (0.046753613 * (s / (72/25.4))) + (itemRow_height/2)
+
+	text_height = s*1.483459427384661
+	text_offset = vShift
+
 	stroke_colour = customColour(0,0,0,85)
 	type_die_colour = customColour(0,100,0,0)
 	type_kiss_colour = customColour(100,0,0,0)
@@ -112,9 +120,9 @@ function itemRow(x,y,l,t,d_text,p_text,no_text){
 	
 	desc_TextFrame = newItemGroup.textFrames.add();
 	desc_TextFrame.contents = d_text;
-	desc_TextFrame.top = y+text_offset
+	desc_TextFrame.top = y-text_offset
 	desc_TextFrame.left = x+(desc_box_width/2)
-	desc_TextFrame.textRange.characterAttributes.size = 6;
+	desc_TextFrame.textRange.characterAttributes.size = text_height;
 	desc_TextFrame.textRange.paragraphAttributes.justification = Justification.CENTER;
 	desc_TextFrame.textRange.characterAttributes.textFont = app.textFonts.getByName('MyriadPro-Regular');
 	
@@ -134,9 +142,9 @@ function itemRow(x,y,l,t,d_text,p_text,no_text){
 	
 	part_TextFrame = newItemGroup.textFrames.add();
 	part_TextFrame.contents = p_text;
-	part_TextFrame.top = y+text_offset
+	part_TextFrame.top = y-text_offset
 	part_TextFrame.left = x+(part_box_width/2)
-	part_TextFrame.textRange.characterAttributes.size = 6;
+	part_TextFrame.textRange.characterAttributes.size = text_height;
 	part_TextFrame.textRange.paragraphAttributes.justification = Justification.CENTER;
 	part_TextFrame.textRange.characterAttributes.textFont = app.textFonts.getByName('MyriadPro-Regular');
 	
@@ -156,9 +164,9 @@ function itemRow(x,y,l,t,d_text,p_text,no_text){
 	
 	nore_TextFrame = newItemGroup.textFrames.add();
 	nore_TextFrame.contents = no_text;
-	nore_TextFrame.top = y+text_offset
+	nore_TextFrame.top = y-text_offset
 	nore_TextFrame.left = x+(nore_box_width/2)
-	nore_TextFrame.textRange.characterAttributes.size = 6;
+	nore_TextFrame.textRange.characterAttributes.size = text_height;
 	nore_TextFrame.textRange.paragraphAttributes.justification = Justification.CENTER;
 	nore_TextFrame.textRange.characterAttributes.textFont = app.textFonts.getByName('MyriadPro-Regular');
 	
@@ -299,14 +307,13 @@ function userInput(){
 		info1 = infoGroup.add ("statictext", undefined,'Script will create partcodes table');
 		info2 = infoGroup.add ("statictext", undefined,'from selected csv.');
 	divider1 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
-	/*
-	var nameSizeGroup = mainGroup.add ('group');
-		nameSizeGroup.orientation = 'row'
-		nameSizeGroup.alignChildren = 'center'
-		nameSizeStatic = nameSizeGroup.add ("statictext", undefined, 'Text Size: ');
-		nameSizeInput = nameSizeGroup.add ("edittext", ([undefined,undefined,50,21]), 10);
-		nameSizeUnitsStatic = nameSizeGroup.add ("statictext", undefined, 'mm');
-	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});*/
+	var rowHeightGroup = mainGroup.add ('group');
+		rowHeightGroup.orientation = 'row'
+		rowHeightGroup.alignChildren = 'center'
+		rowHeightStatic = rowHeightGroup.add ("statictext", undefined, 'Row height: ');
+		rowHeightInput = rowHeightGroup.add ("edittext", ([undefined,undefined,50,21]), 4.895);
+		rowHeightUnitsStatic = rowHeightGroup.add ("statictext", undefined, 'mm');
+	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//---------------------------------------------------- 
 	doSomething = false;
 	//----------------------------------------------------
@@ -317,7 +324,7 @@ function userInput(){
 	}
 	//----------------------------------------------------
 	w.show();
-	//nameSize = parseFloat(nameSizeInput.text)
+	itemRow_height = parseFloat(rowHeightInput.text)*units
 	//----------------------------------------------------
-	return doSomething;//,nameSize;
+	return doSomething,itemRow_height;
 }
