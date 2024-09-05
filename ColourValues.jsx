@@ -54,19 +54,39 @@ function pointTextInfo(text,x,y,s,l){
 function checkName(item){
 	if(item.typename === 'PathItem'){
 		if(app.activeDocument.documentColorSpace === DocumentColorSpace.CMYK){
+			
 			decimalPoint = 2
 			itemColour = item.fillColor
+			
 			if(itemColour.typename == 'CMYKColor'){
-				itemColour = [(itemColour.cyan).toFixed(decimalPoint),
-								(itemColour.magenta).toFixed(decimalPoint),
-								(itemColour.yellow).toFixed(decimalPoint),
-								(itemColour.black).toFixed(decimalPoint)]
-				tempName = 'C:' + itemColour[0] + '% '
-				tempName += 'M:' + itemColour[1] + '% '
-				tempName += 'Y:' + itemColour[2] + '% '
-				tempName += 'K:' + itemColour[3] + '%'
+				
+				tempC = itemColour.cyan.toFixed(decimalPoint)
+				tempM = itemColour.magenta.toFixed(decimalPoint)
+				tempY = itemColour.yellow.toFixed(decimalPoint)
+				tempK = itemColour.black.toFixed(decimalPoint)
+		
+				tempName = 'C:' + tempC + '% '
+				tempName += 'M:' + tempM + '% '
+				tempName += 'Y:' + tempY + '% '
+				tempName += 'K:' + tempK + '%'
+			
 			}else if(itemColour.typename == 'SpotColor'){
-				tempName = itemColour.spot.name
+				
+				if(ignoreSpotName==false){
+					tempName = itemColour.spot.name
+				}else{
+					tempSpotCMYK = itemColour.spot.color
+					tempC = tempSpotCMYK.cyan.toFixed(decimalPoint)
+					tempM = tempSpotCMYK.magenta.toFixed(decimalPoint)
+					tempY = tempSpotCMYK.yellow.toFixed(decimalPoint)
+					tempK = tempSpotCMYK.black.toFixed(decimalPoint)
+		
+					tempName = 'C:' + tempC + '% '
+					tempName += 'M:' + tempM + '% '
+					tempName += 'Y:' + tempY + '% '
+					tempName += 'K:' + tempK + '%'
+				}
+			
 			}
 		}else{
 			decimalPoint = 0
@@ -168,21 +188,31 @@ function stringReplacement(a,b,c){//a-string, b- target, c-replacement
 function userInput(){
 	//----------------------------------------------------
 	var w = new Window ('dialog',"ColourValues");
+	
 	var mainGroup = w.add ('group');
 	mainGroup.orientation = 'column'
+	
 	infoGroup = mainGroup.add('group');
 		infoGroup.orientation = 'column'
 		infoGroup.alignChildren = 'center'
 		info1 = infoGroup.add ("statictext", undefined,'Script will create text object');
 		info2 = infoGroup.add ("statictext", undefined,'with CMYK colour values');
 		info3 = infoGroup.add ("statictext", undefined,'for every item in selection.');
+	
 	divider1 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
+	
 	var nameSizeGroup = mainGroup.add ('group');
 		nameSizeGroup.orientation = 'row'
 		nameSizeGroup.alignChildren = 'center'
 		nameSizeStatic = nameSizeGroup.add ("statictext", undefined, 'Text Size: ');
 		nameSizeInput = nameSizeGroup.add ("edittext", ([undefined,undefined,50,21]), 10);
 		nameSizeUnitsStatic = nameSizeGroup.add ("statictext", undefined, 'mm');
+	
+	var ignoreSpotNameGroup = mainGroup.add ('group');
+		ignoreSpotNameGroup.orientation = 'column'
+		ignoreSpotNameGroup.alignChildren = 'center'
+		ignoreSpotNameCheck = ignoreSpotNameGroup.add ("checkbox", undefined, 'Ignore spot name');
+		
 	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//---------------------------------------------------- 
 	doSomething = false;
@@ -194,7 +224,12 @@ function userInput(){
 	}
 	//----------------------------------------------------
 	w.show();
+	if(ignoreSpotNameCheck.value === true){
+		ignoreSpotName = true
+	}else{
+		ignoreSpotName = false
+	}
 	nameSize = parseFloat(nameSizeInput.text)
 	//----------------------------------------------------
-	return doSomething,nameSize;
+	return doSomething,nameSize,ignoreSpotName;
 }
