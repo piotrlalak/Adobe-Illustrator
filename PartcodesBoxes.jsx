@@ -1,6 +1,18 @@
 ﻿//----------------------------------------------------
 units = 72/25.4
-
+//---------------------------------------------------- INITIAL PARTCODE PREFIX CHECK
+if(selection.length===1){
+	textframe_length = Boolean(selection.length === 1)
+	headerMatch = checkHeader(selection[0].contents);
+	if(textframe_length == true && headerMatch == true){
+		partcodesArray = partcodeCSVArray(selection[0].contents);
+		first_partcode = partcodesArray[0].partcode.substr(0,9)
+	}else{
+		partcodesArray = null
+		first_partcode = 'AST'
+	}
+}
+//----------------------------------------------------
 userInput()
 if(doSomething === true){
 	if(selection.length===1){
@@ -9,7 +21,6 @@ if(doSomething === true){
 }else{
 	//donothing
 }
-
 //----------------------------------------------------
 function partcodesBoxes(){
 	
@@ -21,8 +32,8 @@ function partcodesBoxes(){
 	xOrigin = selection[0].geometricBounds[0]
 	yOrigin = selection[0].geometricBounds[1]
 	
-	box_width = 15 * units
-	box_height = 5 * units
+	box_width = boxWidthInput * units
+	box_height = boxHeightInput * units
 	
 	//----------------------------- PREFLIGHT CHECKS
 	textframe_length = Boolean(selection.length === 1)
@@ -65,19 +76,25 @@ function newBox(x,y,l,t,d_text){
 	newBoxGroup = l.groupItems.add();
 	newBoxGroup.name = d_text
 	//----------------------------------------------------
-	
-	box_width = 15 * units
-	box_height = 5 * units
+	boxWidthInput,boxHeightInput,fontSizeInput
+
+	box_width = boxWidthInput * units //15
+	box_height = boxHeightInput * units //5
+
 	line_lenght = 15 * units
-	text_offset = 0.383 * units
 	stroke_width = 0.35 * units
-	
+	font_scale_factor = 1.4834594273846610295208426049548
+	text_size = fontSizeInput * units * font_scale_factor
+
+	text_cetreline_offset = 1.043 * units
+	text_offset = fontSizeInput / 2 * units
+
 	type_die_colour = customColour(0,100,0,0)
 	type_kiss_colour = customColour(100,0,0,0)
 	type_other_colour = customColour(100,0,100,0)
 	white_colour = customColour(0,0,0,0)
 	
-	//---------------------------------------------------- TYPE BOX
+	//---------------------------------------------------- TYPE BOX 
 
 	base_line = newBoxGroup.pathItems.add(x,y,box_width,box_height,false,false);
 	base_line.setEntirePath([[x+box_width/2,y-box_height/2],[x+box_width/2,y-box_height/2-line_lenght]]);
@@ -116,15 +133,12 @@ function newBox(x,y,l,t,d_text){
 			base_line.strokeColor = type_other_colour;
 	}
 	
-	box_TextFrame = newBoxGroup.textFrames.add();
-	box_TextFrame.contents = d_text;
-	box_TextFrame.top = y-text_offset
-	box_TextFrame.left = x+(box_width/2)
-	box_TextFrame.textRange.characterAttributes.size = 12;
-	box_TextFrame.textRange.characterAttributes.fillColor = white_colour;
-	box_TextFrame.textRange.paragraphAttributes.justification = Justification.CENTER;
-	box_TextFrame.textRange.characterAttributes.textFont = app.textFonts.getByName('MyriadPro-Semibold');
-	
+	new_pointText = newBoxGroup.textFrames.pointText([x+(box_width/2),y-(box_height/2)-(fontSizeInput*units/2)],TextOrientation.HORIZONTAL)
+	new_pointText.contents = d_text;	
+	new_pointText.textRange.characterAttributes.size = text_size;
+	new_pointText.textRange.characterAttributes.fillColor = white_colour;
+	new_pointText.textRange.paragraphAttributes.justification = Justification.CENTER;
+	new_pointText.textRange.characterAttributes.textFont = app.textFonts.getByName('MyriadPro-Semibold');	
 
 }
 //------------------------------------------
@@ -309,6 +323,7 @@ function userInput(){
 		info1 = infoGroup.add ("statictext", undefined,'Script will create partcodes boxes');
 		info2 = infoGroup.add ("statictext", undefined,'from selected csv.');
 	divider1 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
+	
 	var prefixGroup = mainGroup.add ('group');
 	prefixGroup.orientation = 'column'
 	prefixGroup.alignChildren = 'center'
@@ -317,9 +332,36 @@ function userInput(){
 		prefixInputGroup.orientation = 'row'
 		prefixInputGroup.alignChildren = 'center'
 		prefixStatic = prefixInputGroup.add ("statictext", undefined, 'Prefix: ');
-		prefixInputEdit = prefixInputGroup.add ("edittext", ([undefined,undefined,100,21]), 'AST');
+		prefixInputEdit = prefixInputGroup.add ("edittext", ([undefined,undefined,100,21]), first_partcode);
 		prefixInputGroup.enabled = false
+	
 	divider2 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
+	
+	var sizesGroup = mainGroup.add ('group');
+	sizesGroup.orientation = 'column'
+	sizesGroup.alignChildren = 'right'
+
+	var boxWidthGroup = sizesGroup.add ('group');
+	boxWidthGroup.orientation = 'row'
+	boxWidthGroup.alignChildren = 'center'
+	boxWidthStatic = boxWidthGroup.add ("statictext", undefined, 'Box width: ');
+	boxWidthInputEdit = boxWidthGroup.add ("edittext", ([undefined,undefined,50,21]), 25);
+	
+	var boxHeightGroup = sizesGroup.add ('group');
+	boxHeightGroup.orientation = 'row'
+	boxHeightGroup.alignChildren = 'center'
+	boxHeightStatic = boxHeightGroup.add ("statictext", undefined, 'Box height: ');
+	boxHeightInputEdit = boxHeightGroup.add ("edittext", ([undefined,undefined,50,21]), 5);
+	
+	var fontSizeGroup = sizesGroup.add ('group');
+	fontSizeGroup.orientation = 'row'
+	fontSizeGroup.alignChildren = 'center'
+	fontStatic = fontSizeGroup.add ("statictext", undefined, 'Font size: ');
+	fontInputEdit = fontSizeGroup.add ("edittext", ([undefined,undefined,50,21]), 2);
+	
+	var scaleFontButton = sizesGroup.add ("button", undefined, "Scale font & height");
+	
+	divider3 = mainGroup.add('panel',([undefined,undefined,120,undefined]),undefined,{borderStyle:'white'});
 	//---------------------------------------------------- 
 	doSomething = false;
 	//----------------------------------------------------
@@ -332,8 +374,24 @@ function userInput(){
 	prefixCheck.onClick = function (){
 		if(prefixInputGroup.enabled === true){
 			prefixInputGroup.enabled = false;
+			boxWidthInputEdit.text = 25
+			fontInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.08
+			boxHeightInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.2
 		}else{
 			prefixInputGroup.enabled = true;
+			boxWidthInputEdit.text = 10
+			fontInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.2
+			boxHeightInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.5
+		}
+	}
+	//----------------------------------------------------
+	scaleFontButton.onClick = function (){
+		if(prefixInputGroup.enabled === true){
+			fontInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.2
+			boxHeightInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.5
+		}else{
+			fontInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.08
+			boxHeightInputEdit.text = parseFloat(boxWidthInputEdit.text) * 0.2
 		}
 	}
 	//----------------------------------------------------
@@ -347,5 +405,8 @@ function userInput(){
 	//nameSize = parseFloat(nameSizeInput.text)
 	//----------------------------------------------------
 	prefixInput = prefixInputEdit.text
-	return doSomething,removePrefix,prefixInput;//,nameSize;
+	boxWidthInput = boxWidthInputEdit.text
+	boxHeightInput = boxHeightInputEdit.text
+	fontSizeInput = fontInputEdit.text
+	return doSomething,removePrefix,prefixInput,boxWidthInput,boxHeightInput,fontSizeInput;//,nameSize;
 }
