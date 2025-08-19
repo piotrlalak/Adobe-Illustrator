@@ -6,15 +6,81 @@ if(doSomething === true){
 		decimalPoint = precision//5
 		activeDoc = app.activeDocument;
 		activeLayer = activeDoc.activeLayer;
-		//-------------------------------------------------------
+		weightsList = []
+		//------------------------------------------------------- List all different weights
+		itemsLength = app.activeDocument.selection.length
+		for(p=0;p<itemsLength;p++){
+			
+			c_item = app.activeDocument.selection[p]
+			
+			if(c_item.typename == 'TextFrame'){
+				weightsList.push('Text')
+			
+			}else if(c_item.typename == 'CompoundPathItem'){
+				
+				if(c_item.pathItems[0].stroked == false){
+					weightsList.push('None')
+				}else{
+					c_stroke_w =(c_item.pathItems[0].strokeWidth / units).toFixed(decimalPoint)
+					weightsList.push(c_stroke_w)
+				}
+			
+			}else{
+				
+				if(c_item.stroked == false){
+					weightsList.push('None')
+				}else{
+					c_stroke_w =(c_item.strokeWidth / units).toFixed(decimalPoint)
+					weightsList.push(c_stroke_w)
+				}
+			}
+		}
+		//$.writeln('\nFull list:\n' +weightsList)
+		weightsList = uniq_fast(weightsList)
+		//$.writeln('\nReduced list:\n' +weightsList)
+		//------------------------------------------------------- Create layers
+		for(i=0;i<weightsList.length;i++){
+			createLayer(weightsList[i])
+		}
+		//------------------------------------------------------- Move each item to layer
 		itemsLength = app.activeDocument.selection.length
 		for(p=0;p<itemsLength;p++){
 			c_item = app.activeDocument.selection[p]
-			c_stroke_w =(c_item.strokeWidth / units).toFixed(decimalPoint)
-			createLayer(c_stroke_w)
-			moveItemToLayer(c_item,c_stroke_w)
+			if(c_item.typename == 'TextFrame'){
+				c_layer = app.activeDocument.layers.getByName('Text')
+				c_layer.locked = false;
+				c_layer.visible = true;
+				c_item.move(c_layer, ElementPlacement.PLACEATEND);
+			}else if(c_item.typename == 'CompoundPathItem'){
+				if(c_item.pathItems[0].stroked == false){
+					c_layer = app.activeDocument.layers.getByName('None')
+					c_layer.locked = false;
+					c_layer.visible = true;
+					c_item.move(c_layer, ElementPlacement.PLACEATEND);
+				}else{
+					c_stroke_w =(c_item.pathItems[0].strokeWidth / units).toFixed(decimalPoint)
+					c_layer = app.activeDocument.layers.getByName(c_stroke_w)
+					c_layer.locked = false;
+					c_layer.visible = true;
+					c_item.move(c_layer, ElementPlacement.PLACEATEND);
+				}
+			}else{
+				if(c_item.stroked == false){
+					c_layer = app.activeDocument.layers.getByName('None')
+					c_layer.locked = false;
+					c_layer.visible = true;
+					c_item.move(c_layer, ElementPlacement.PLACEATEND);
+				}else{
+					c_stroke_w =(c_item.strokeWidth / units).toFixed(decimalPoint)
+					c_layer = app.activeDocument.layers.getByName(c_stroke_w)
+					c_layer.locked = false;
+					c_layer.visible = true;
+					c_item.move(c_layer, ElementPlacement.PLACEATEND);
+				}
+			}
 			p +1
 		}
+
 	}
 }else{
 	//donothing
@@ -23,6 +89,21 @@ if(doSomething === true){
 function moveItemToLayer(item,itemName){
 	currentLayer = createLayer(itemName)
 	item.move(currentLayer, ElementPlacement.PLACEATEND);
+}
+//-------------------------------------------------------
+function uniq_fast(a) {
+    var seen = {};
+    var out = [];
+    var len = a.length;
+    var j = 0;
+    for(var i = 0; i < len; i++) {
+         var item = a[i];
+         if(seen[item] !== 1) {
+               seen[item] = 1;
+               out[j++] = item;
+         }
+    }
+    return out;
 }
 //-------------------------------------------------------
 function createLayer(layerName){
@@ -82,3 +163,26 @@ function userInput(){
 	//----------------------------------------------------
 	return doSomething,precision;
 }
+//-------------------------------------------------------------------------
+/*
+if(doSomething === true){
+	if(app.activeDocument.selection.length > 0){
+		//-------------------------------------------------------
+		units = 72 / 25.4
+		decimalPoint = precision//5
+		activeDoc = app.activeDocument;
+		activeLayer = activeDoc.activeLayer;
+		//-------------------------------------------------------
+		itemsLength = app.activeDocument.selection.length
+		for(p=0;p<itemsLength;p++){
+			c_item = app.activeDocument.selection[p]
+			c_stroke_w =(c_item.strokeWidth / units).toFixed(decimalPoint)
+			createLayer(c_stroke_w)
+			moveItemToLayer(c_item,c_stroke_w)
+			p +1
+		}
+	}
+}else{
+	//donothing
+}
+*/
