@@ -1,11 +1,16 @@
-﻿//------------------------------------
+//------------------------------------
 doSomething = false
 userInput();
 initialConstants();
 if(doSomething === true){
-	for(p=app.activeDocument.selection.length-1;p>=0;p--){
-		tileBox(app.activeDocument.selection[p])
-	}
+	//for(p=app.activeDocument.selection.length-1;p>=0;p--){//Original
+    if(app.activeDocument.selection.length > 0){
+        panel_collection = app.activeDocument.selection
+        for(p=0;p<panel_collection.length;p++){
+            //$.writeln('\nTiling '+ panel_collection[p].name + ' --------------------------------\n')
+            tileBox(panel_collection[p])
+        }
+    }
 }else{
 	//do nothing
 }
@@ -145,6 +150,7 @@ function neg2pos(value){
 }
 //------------------------------------
 function createTabTile(rect,item,currentTileNumber,totalTileNumber){
+    //$.writeln('createTabTile')
 	//----------------------------------------------------
 	tabWidth = 155 * units //155mm
 	tabHeight = 20 * units //20mm
@@ -231,7 +237,7 @@ function createTabTile(rect,item,currentTileNumber,totalTileNumber){
 				
 	//--------------------------------------------------------------------------------------------------------------------- BARCODE
 	if (addEskoBarcode === true){
-		
+		//$.writeln('\nAdding esko barcode')
 		if(tempOrientation === 'vertical'){//////////////////////////////////////////////////////////// VERTICAL
 			
 			if(currentTileNumber > 0 &&  currentTileNumber < (totalTileNumber-1)){
@@ -248,7 +254,7 @@ function createTabTile(rect,item,currentTileNumber,totalTileNumber){
 			}
 	
 			byp = rect[1]+tabHeight
-			
+
 			currentBarcode = createEskoBarcode(
 									byp,
 									bxp,
@@ -323,11 +329,10 @@ function customColour(c,m,y,k){
 }
 //------------------------------------
 function createEskoBarcode(x,y,w,h,l,s){
-	
 	var eskoBarcodeGroup = l.groupItems.add();
-	eskoBarcodeGroup.name = 'Esko Barcode'
+	eskoBarcodeGroup.name = 'Esko Barcode'// + Math. random(10000)
 	white_background = roundedRect(x,y,eskoBarcodeGroup,w,h,5*units)
-	
+	//$.writeln(eskoBarcodeGroup.name)
 	s = units / (72/25.4)
 	
 	partcode_text = pointType('PARTCODE', y+(4.76 * units), x-(8.31 * units) , eskoBarcodeGroup , 14 * s)
